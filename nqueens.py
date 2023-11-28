@@ -89,9 +89,8 @@ def encode(n: int, placed_queens: List[Tuple[int, int]]) -> CNF:
         for j in range(n):
             cont.append(Bool(j))#fem servir array per a gruardar cada una 
         cnf.add_clause(exactly_one(cont))
-    i=0
-    while i < n:
-        cont.clear()
+    
+    for i in range(n):
         
 
     return cnf
