@@ -5,6 +5,7 @@ from optilog.modelling import Bool, Not
 from optilog.solvers.sat import Glucose41
 
 
+
 from utils import main, queen_at  # noqa: F401
 
 
@@ -49,17 +50,18 @@ def exactly_one(literals: List[Literal]) -> List[List[Literal]]:
 
     Returns a list of clauses
     """
-    clausulas=[]
-    clausulas.append(at_least_one(literals))
-    clausulas.append(at_most_one(literals))
-    return clausulas
-    """
-    clausulas.append(literals)#assegurem que al menys un ha de ser cert
-    for i in range(len(literals)):#assegurem que com a molt haurà una de certa
-        for a in range(i + 1, len(literals)):
-            clausulas.append([~literals[i], ~literals[a]])
-            
-    raise NotImplementedError"""
+    #clausulas=[]
+    #clausulas.append(at_least_one(literals))
+    #clausulas.append(at_most_one(literals))
+    return [at_least_one(literals),at_most_one(literals)]
+    # """
+    # clausulas.append(literals)#assegurem que al menys un ha de ser cert
+    # for i in range(len(literals)):#assegurem que com a molt haurà una de certa
+    #     for a in range(i + 1, len(literals)):
+    #         clausulas.append([~literals[i], ~literals[a]])
+    #         
+    # raise NotImplementedError
+    # """
 
 
 def encode(n: int, placed_queens: List[Tuple[int, int]]) -> CNF:
@@ -75,24 +77,44 @@ def encode(n: int, placed_queens: List[Tuple[int, int]]) -> CNF:
     # --------------
     # Your code here
     # --------------
-    diagonal=[]
+    
     fila=[]
     cont=[]
+    print(placed_queens)
+    for o in range(4):
+        
+        for k in range(n):
+            if 0 <= i + k < n and 0 <= j + k < n:
+                diagonal.append(queen_at(i + k, j + k))
+
+            if 0 <= i - k < n and 0 <= j + k < n:
+                diagonal.append(queen_at(i - k, j + k))
+        print(cont)
+        cnf.add_clause(at_most_one(diagonal))
+
+
     for i in range(n):#files
         cont.clear()
         for j in range(n):
-            cont.append(Bool(j))#fem servir array per a gruardar cada una 
-        cnf.add_clause(exactly_one(cont))
-
+            #if placed_queens.__contains__([i,j]):
+            cont.append(queen_at(i,j))#fem servir array per a gruardar cada una en i=fila j=columna
+            #else:
+            #    cont.append(-k)
+            #k=k+1
+        print(cont)
+        cnf.add_clause(exactly_one(cont))#ho fem per cafa fila
+    
     for j in range(n):#columnes
         cont.clear()
-        for j in range(n):
-            cont.append(Bool(j))#fem servir array per a gruardar cada una 
-        cnf.add_clause(exactly_one(cont))
-    
-    for i in range(n):
-        
+        for i in range(n):
+            #if placed_queens.__contains__([i,j]):
+            cont.append(queen_at(i,j))#fem servir array per a gruardar cada una en i=fila j=columna
 
+                # cont.append(k)#fem servir array per a gruardar cada una
+            #else:
+            #    cont.append(-k)
+            #k=k+1
+        cnf.add_clause(exactly_one(cont))#ho fem per cada columna
     return cnf
 
 
