@@ -1,3 +1,4 @@
+from itertools import count
 from typing import Tuple, List, Optional, Union
 
 from optilog.formulas import CNF  # type: ignore
@@ -36,10 +37,11 @@ def at_most_one(literals: List[Literal]) -> List[List[Literal]]:
 
     Returns a list of clauses
     """
-    clausulas = [[]]
+    clausulas = []
     for i in range(len(literals)):
         for a in range(i + 1, len(literals)):
             clausulas.append([~literals[i], ~literals[a]])
+    print(clausulas,"abans")
     return clausulas
 
 
@@ -53,7 +55,8 @@ def exactly_one(literals: List[Literal]) -> List[List[Literal]]:
     #clausulas=[]
     #clausulas.append(at_least_one(literals))
     #clausulas.append(at_most_one(literals))
-    return [at_least_one(literals),at_most_one(literals)]
+    llista= at_least_one(literals)+at_most_one(literals)
+    return llista
     # """
     # clausulas.append(literals)#assegurem que al menys un ha de ser cert
     # for i in range(len(literals)):#assegurem que com a molt haurà una de certa
@@ -80,18 +83,8 @@ def encode(n: int, placed_queens: List[Tuple[int, int]]) -> CNF:
     
     fila=[]
     cont=[]
-    print(placed_queens)
-    for o in range(4):
-        
-        for k in range(n):
-            if 0 <= i + k < n and 0 <= j + k < n:
-                diagonal.append(queen_at(i + k, j + k))
-
-            if 0 <= i - k < n and 0 <= j + k < n:
-                diagonal.append(queen_at(i - k, j + k))
-        print(cont)
-        cnf.add_clause(at_most_one(diagonal))
-
+    
+    
 
     for i in range(n):#files
         cont.clear()
@@ -102,7 +95,8 @@ def encode(n: int, placed_queens: List[Tuple[int, int]]) -> CNF:
             #    cont.append(-k)
             #k=k+1
         print(cont)
-        cnf.add_clause(exactly_one(cont))#ho fem per cafa fila
+        for claus in exactly_one(cont):
+            cnf.add_clause(claus)#ho fem per cafa fila
     
     for j in range(n):#columnes
         cont.clear()
@@ -114,7 +108,77 @@ def encode(n: int, placed_queens: List[Tuple[int, int]]) -> CNF:
             #else:
             #    cont.append(-k)
             #k=k+1
-        cnf.add_clause(exactly_one(cont))#ho fem per cada columna
+        conj=exactly_one(cont)
+        for claus in conj:
+            cnf.add_clause(claus)#ho fem per cada columna
+
+
+
+
+    cont.clear()
+
+    for k in range(n):#diagonal esquerra-dreta
+        cont.append(queen_at(k,k))
+
+    conj = at_most_one(cont)
+
+    for claus in conj:
+        cnf.add_clause(claus)#passem al acabar de recorrer la primera diagonal
+
+
+    cont.clear()
+
+    """for k in range(1,n):#diagonals per sobre de la esquerra-dreta
+        for i in range(n-k):
+            cont.append(queen_at(i,(i+k)))
+
+        conj=at_most_one(cont)
+        for claus in conj:
+            cnf.add_clause(claus)
+
+    cont.clear()
+
+    for k in range(1,n):#diagonals per sota de la esquerra-dreta
+        for i in range(n-k):
+            cont.append(queen_at((i+k),i))
+
+        conj=at_most_one(cont)
+        for claus in conj:
+            cnf.add_clause(claus)
+
+
+
+
+
+    cont.clear()
+
+    for k in range(n):#diagonal dreta-esquerra
+        cont.append(queen_at(k,(n-1-k)))
+
+    conj = at_most_one(cont)
+
+    for claus in conj:
+        cnf.add_clause(claus)#passem al acabar de recorrer la primera diagonal
+
+    cont.clear()
+
+
+    for k in range(1,n):
+        for i in range (n-k):
+            cont.append(queen_at(i,(n-1-i-k)))
+        conj = at_most_one(cont)
+
+        for claus in conj:
+            cnf.add_clause(claus)
+
+    for k in range(1,n):
+            for i in range (n-k):
+                cont.append(queen_at((n-1-i-k),i))
+            conj = at_most_one(cont)
+
+            for claus in conj:
+                cnf.add_clause(claus)"""
+
     return cnf
 
 
